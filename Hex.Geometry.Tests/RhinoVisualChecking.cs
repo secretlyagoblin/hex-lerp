@@ -30,14 +30,16 @@ namespace Hex.Geometry.Tests
         {
             var rng = new System.Random(23467243);
 
-            var hex = new HexIndex3d(0, 0, 0);
+            var hex = new HexIndex2d(0,0).Get3dIndex();
             var rosette = hex
-                .GenerateRosetteCircular(7)
-                .Select(x => new Hex<Blerpable>(x,new Terrain(rng.NextDouble()*10)))
+                .GenerateRosetteCircular(5)
+                .Select(x => new Hex<Blerpable>(x,new Terrain((rng.NextDouble()*10)-5, rng.Next())))
                 .ToList();
 
+            rosette.AddRange(hex.GenerateRing(5).Select(x => new Hex<Blerpable>(x, Blerpable.Default(rosette[0].Payload))));
+
             var hexGroup = new HexGroup(rosette);
-            var subGroup = hexGroup.SubdivideThree();
+            var subGroup = hexGroup.Subdivide(3);
 
             Print(subGroup.GetHexes(), nameof(MakeIsland));
 

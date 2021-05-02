@@ -98,6 +98,12 @@ namespace Hex.Geometry
             return new HexGroup(this,3);
         }
 
+        public HexGroup Subdivide(int amount)
+        {
+            //Debug.Log("Starting subdivide");
+            return new HexGroup(this, amount);
+        }
+
         /// <summary>
         /// Subdivide this hexgroup returning results for debugging purposes.
         /// </summary>

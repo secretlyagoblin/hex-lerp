@@ -91,21 +91,21 @@ namespace Hex.Geometry
 
             var nestedCenter = this.Center.Index.NestMultiply(scale);
 
-            var floatingNestedCenter = nestedCenter.GetPosition2d() + this.Center.Index.GetPosition2d();//.AddNoiseOffset(scale-1);
+            var floatingNestedCenter = nestedCenter.GetPosition2d();// + this.Center.Index.GetPosition2d();//.AddNoiseOffset(scale-1);
 
             var largeHexPoints = new Vector2[]
             {
-                 this.N0.Index.NestMultiply(scale).GetPosition2d() + this.N0.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N1.Index.NestMultiply(scale).GetPosition2d() + this.N1.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N2.Index.NestMultiply(scale).GetPosition2d() + this.N2.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N3.Index.NestMultiply(scale).GetPosition2d() + this.N3.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N4.Index.NestMultiply(scale).GetPosition2d() + this.N4.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N5.Index.NestMultiply(scale).GetPosition2d() + this.N5.Index.GetPosition2d()//.AddNoiseOffset(scale-1)
+                 this.N0.Index.NestMultiply(scale).GetPosition2d(),// + this.N0.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N1.Index.NestMultiply(scale).GetPosition2d(),// + this.N1.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N2.Index.NestMultiply(scale).GetPosition2d(),// + this.N2.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N3.Index.NestMultiply(scale).GetPosition2d(),// + this.N3.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N4.Index.NestMultiply(scale).GetPosition2d(),// + this.N4.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N5.Index.NestMultiply(scale).GetPosition2d() //+ this.N5.Index.GetPosition2d()//.AddNoiseOffset(scale-1)
             };
 
             var indexChildren = nestedCenter.GenerateRosetteCircular(scale+1);
 
-            var children = new Hex<Blerpable>[indexChildren.Length];
+            var children = new List<Hex<Blerpable>>();
 
             for (int i = 0; i < indexChildren.Length; i++)
             {
@@ -133,25 +133,28 @@ namespace Hex.Geometry
                     index++;
                 }
                 
-                if (!foundChild)
-                {
-                    throw new System.Exception("No containing barycenter detected at {this.Center.Index} - inner hex not contained by outer hex. Using weight {weight}.");
-                }
+                if (!foundChild) continue;
+                
 
-                var payload = InterpolateHexPayload(weight, index);
+                    var payload = InterpolateHexPayload(weight, index);
+
+                    children.Add(new Hex<Blerpable>(
+                        indexChildren[i],
+                        payload
+                    ));
+                
+
+               
 
                 //Debug.DrawLine(nestedCenter.Position3d, indexChildren[i].Position3d, Color.blue, 100f);
 
 
-                children[i] = new Hex<Blerpable>(
-                    indexChildren[i],
-                    payload
-                    );
+
             }
 
             //var childSubset = ResolveEdgeCases(children);
 
-            return children;
+            return children.ToArray();
         }
 
         /// <summary>

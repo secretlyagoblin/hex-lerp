@@ -187,7 +187,7 @@ namespace Hex.Geometry.Vectors
         /// <param name="c"></param>
         /// <param name="weight"></param>
         /// <returns></returns>
-        public static T BlerpChoice<T>(T a, T b, T c, Vector3 weight)
+        public static T BlerpChoice<T>(T a, T b, T c, I3dPositionable weight)
         {
             if (weight.XPos >= weight.YPos && weight.XPos >= weight.ZPos)
             {
