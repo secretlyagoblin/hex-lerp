@@ -13,5 +13,12 @@ namespace Hex.Geometry.Blerpables
         }
 
         protected abstract Blerpable Blerp(Blerpable b, Blerpable c, I3dPositionable weight);
+
+        public static Blerpable Default(Blerpable blerpable)
+        {
+            return blerpable.GetDefault();
+        }
+
+        protected abstract Blerpable GetDefault();
     }
 }

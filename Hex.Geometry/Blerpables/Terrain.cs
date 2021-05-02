@@ -16,6 +16,11 @@ namespace Hex.Geometry.Blerpables
 
         public double SeaLevel { get; } = -5;
 
+        public override string ToString()
+        {
+            return $"{SeaLevel}";
+        }
+
         protected override Blerpable Blerp(Blerpable b, Blerpable c, I3dPositionable weight)
         {
             if (b is Terrain tb && c is Terrain tc)
@@ -27,6 +32,11 @@ namespace Hex.Geometry.Blerpables
             {
                 throw new Exception("Misaligned blerp");
             }
+        }
+
+        protected override Blerpable GetDefault()
+        {
+            return new Terrain();
         }
     }
 }

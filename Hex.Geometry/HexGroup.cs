@@ -1,43 +1,21 @@
-﻿using Hex.Geometry;
-using Hex.Geometry.Blerpables;
-using Hex.Geometry.Interfaces;
+﻿using Hex.Geometry.Blerpables;
+using Hex.Geometry.Vectors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RecursiveHex
+namespace Hex.Geometry
 {
-    public class HexGroup<T> where T:Blerpable
+    public class HexGroup
     {
-        private HashSet<Hex<T>> _inside;
-        private HashSet<Hex<T>> _border;
+        private Dictionary<HexIndex3d, Hex<Blerpable>> _hexes = new Dictionary<HexIndex3d, Hex<Blerpable>>();
 
-        /// <summary>
-        /// Creates a single hex cell at 0,0 with 6 border cells
-        /// </summary>
-        /// 
-        /*
+        public List<Hex<Blerpable>> GetHexes() => _hexes.Select(x=>x.Value).ToList();
 
-        public HexGroup()
+        public HexGroup(List<Hex<Blerpable>> blerps)
         {
-            _inside = new HashSet<Hex<T>>();
-            _border = new HashSet<Hex<T>>();
-
-            AddHex(new Hex(new HexIndex(),new HexPayload(),false));
-
-            var neighbours = Neighbourhood.Neighbours;
-            //
-            for (int i = 0; i < neighbours.Length; i++)
-            {
-                AddBorderHex(new Hex(new HexIndex(neighbours[i]),new HexPayload(),true));
-            }
-        }
-
-        private HexGroup(Dictionary<Vector3Int, Hex> inside, Dictionary<Vector3Int, Hex> border)
-        {
-            _inside = inside;
-            _border = border;
+            blerps.ForEach(x => _hexes.Add(x.Index, x));
         }
 
         /// <summary>
@@ -47,8 +25,6 @@ namespace RecursiveHex
         private HexGroup(HexGroup parent, int rosetteSize)
         {
             var hoods = parent.GetNeighbourhoods();
-            _inside = new Dictionary<Vector3Int, Hex>(parent._inside.Count * 19); //magic numbers 
-            _border = new Dictionary<Vector3Int, Hex>(parent._border.Count * 10); //magic numbers
 
             for (int i = 0; i < hoods.Length; i++)
             {         
@@ -58,22 +34,14 @@ namespace RecursiveHex
 
                 for (int u = 0; u < cells.Length; u++)
                 {
-                    if (cells[u].IsBorder)
-                        this.AddBorderHex(cells[u]);
-                    else
                         this.AddHex(cells[u]);
                 }
             }
         }
 
-        private void AddBorderHex(Hex hex)
+        private void AddHex(Hex<Blerpable> hex)
         {
-            _border.Add(hex.Index.Index3d, hex);
-        }
-
-        private void AddHex(Hex hex)
-        {
-            _inside.Add(hex.Index.Index3d, hex);
+            _hexes.Add(hex.Index, hex);
         }
 
         /// <summary>
@@ -82,95 +50,43 @@ namespace RecursiveHex
         /// <returns></returns>
         private Neighbourhood[] GetNeighbourhoods()
         {
-            var hood = new Neighbourhood[_inside.Count + _border.Count];
+            var hood = new Neighbourhood[_hexes.Count];
 
             var count = 0;
 
-            foreach (var hexDictEntry in _inside)
+            foreach (var hexDictEntry in _hexes)
             {
-                var hexes = new Hex[6];
+                var hexes = new Hex<Blerpable>[6];
 
                 var neighbours = Neighbourhood.Neighbours;
 
                 for (int i = 0; i < 6; i++)
                 {
                     var key = hexDictEntry.Key + neighbours[i];
-                    if (_border.ContainsKey(key))
+                    if (_hexes.ContainsKey(key))
                     {
-                        hexes[i] = _border[key];
-                    }
-                    else if (_inside.ContainsKey(key))
-                    {
-                        hexes[i] = _inside[key];
+                        hexes[i] = new Hex<Blerpable>(key,_hexes[key].Payload);
                     }
                     else
                     {
-                        Debug.LogError("A null neighbour detected on an inner hex.");
-                        hexes[i] = Hex.InvalidHex;
+                        hexes[i] = new Hex<Blerpable>(key, Blerpable.Default(hexDictEntry.Value.Payload));
                     }
                 }
 
-                hood[count] = new Neighbourhood
-                {
-                    Center = hexDictEntry.Value,
-                    N0 = hexes[0],
-                    N1 = hexes[1],
-                    N2 = hexes[2],
-                    N3 = hexes[3],
-                    N4 = hexes[4],
-                    N5 = hexes[5],
-                    IsBorder = false
-                };
-                count++;
-            }
-
-            foreach (var hexDictEntry in _border)
-            {
-                var hexes = new Hex[6];
-                var neighbours = Neighbourhood.Neighbours;
-
-                var borderOrNullCount = 0;
-
-                for (int i = 0; i < 6; i++)
-                {
-                    var key = hexDictEntry.Key + neighbours[i];
-                    if (_border.ContainsKey(key))
-                    {
-                        borderOrNullCount++;
-                        hexes[i] = _border[key];
-                    }
-                    else if (_inside.ContainsKey(key))
-                    {
-                        hexes[i] = _inside[key];
-                    }
-                    else
-                    {
-                        borderOrNullCount++;
-                        //Debug.Log("This border has some nulls! That is fine");
-                        hexes[i] = Hex.InvalidHex;
-                    }
-                }
-
-                var finalCenter = borderOrNullCount < 6 ? hexDictEntry.Value : Hex.InvalidHex;
-
-                hood[count] = new Neighbourhood
-                {
-                    Center = finalCenter,
-                    N0 = hexes[0],
-                    N1 = hexes[1],
-                    N2 = hexes[2],
-                    N3 = hexes[3],
-                    N4 = hexes[4],
-                    N5 = hexes[5],
-                    IsBorder = true
-                };
+                hood[count] = new Neighbourhood(                
+                    new Hex<Blerpable>(hexDictEntry.Key,hexDictEntry.Value.Payload),
+                    hexes[0],
+                    hexes[1],
+                    hexes[2],
+                    hexes[3],
+                    hexes[4],
+                    hexes[5])
+                ;
                 count++;
             }
 
             return hood;
         }
-
-        #region Subdivision
 
         /// <summary>
         /// Subdivide this hexgroup.
@@ -190,6 +106,8 @@ namespace RecursiveHex
         //{
         //    return new HexGroup(this, true);
         //}
+
+        /*
 
         /// <summary>
         /// Hypothetical function that subdivides and returns a specific subset, based on a function, like Where() in linq.
@@ -535,6 +453,9 @@ namespace RecursiveHex
         #endregion
 
         */
+
+
     }
+
 
 }

@@ -203,6 +203,11 @@ namespace Hex.Geometry.Vectors
             }
         }
 
+        public static double Dot2d(this I2dPositionable a, I2dPositionable b)
+        {
+            return (a.XPos * b.XPos) + (a.YPos * b.YPos);
+        }
+
 
     }
 }
