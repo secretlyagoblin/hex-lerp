@@ -1,4 +1,5 @@
 ﻿using Hex.Geometry;
+using Hex.Geometry.Blerpables;
 using Hex.Geometry.Interfaces;
 using System;
 using System.Collections;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace RecursiveHex
 {
-    public class HexGroup<T> where T:IBlerpable
+    public class HexGroup<T> where T:Blerpable
     {
         private HashSet<Hex<T>> _inside;
         private HashSet<Hex<T>> _border;

@@ -4,9 +4,8 @@ using System.Text;
 
 namespace Hex.Geometry.Interfaces
 {
-    public interface I2dIndexable
+    public interface I3dPositionable : I2dPositionable
     {
-        int XIndex { get; }
-        int YIndex { get; }
+        double ZPos { get; }
     }
 }

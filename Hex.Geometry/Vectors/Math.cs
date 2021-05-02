@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Hex.Geometry.Interfaces;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Hex.Geometry.Vectors
@@ -12,7 +13,12 @@ namespace Hex.Geometry.Vectors
         public static Vector3 ToPosition3d(this HexIndex3d pos)
         {
             var twoD = pos.Get2dIndex().GetPosition2d();
-            return new Vector3(twoD.X, twoD.Y, 0);            
+            return new Vector3(twoD.XPos, twoD.YPos, 0);            
+        }
+
+        public static Vector2 GetPosition2d(this HexIndex3d index3d)
+        {
+            return index3d.Get2dIndex().GetPosition2d();
         }
 
         public static Vector2 GetPosition2d(this HexIndex2d index2d)
@@ -150,24 +156,24 @@ namespace Hex.Geometry.Vectors
             }
         }
 
-        public static double Blerp(float a, float b, float c, Vector3 weight)
+        public static double Blerp(double a, double b, double c, I3dPositionable weight)
         {
-            return a * weight.X + b * weight.Y + c * weight.Z;
+            return a * weight.XPos + b * weight.YPos + c * weight.ZPos;
         }
 
-        public static Vector2 Blerp(Vector2 a, Vector2 b, Vector2 c, Vector3 weight)
+        public static Vector2 Blerp(Vector2 a, Vector2 b, Vector2 c, I3dPositionable weight)
         {
-            var x = a.X * weight.X + b.X * weight.Y + c.X * weight.Z;
-            var y = a.Y * weight.X + b.Y * weight.Y + c.Y * weight.Z;
+            var x = a.XPos * weight.XPos + b.XPos * weight.YPos + c.XPos * weight.ZPos;
+            var y = a.YPos * weight.XPos + b.YPos * weight.YPos + c.YPos * weight.ZPos;
 
             return new Vector2(x, y);
         }
 
-        public static Vector3 Blerp(Vector3 a, Vector3 b, Vector3 c, Vector3 weight)
+        public static Vector3 Blerp(Vector3 a, Vector3 b, Vector3 c, I3dPositionable weight)
         {
-            var x = a.X * weight.X + b.X * weight.Y + c.X * weight.Z;
-            var y = a.Y * weight.X + b.Y * weight.Y + c.Y * weight.Z;
-            var z = a.Z * weight.X + b.Z * weight.Y + c.Z * weight.Z;
+            var x = a.XPos * weight.XPos + b.XPos * weight.YPos + c.XPos * weight.ZPos;
+            var y = a.YPos * weight.XPos + b.YPos * weight.YPos + c.YPos * weight.ZPos;
+            var z = a.ZPos * weight.XPos + b.ZPos * weight.YPos + c.ZPos * weight.ZPos;
 
             return new Vector3(x, y, z);
         }
@@ -183,11 +189,11 @@ namespace Hex.Geometry.Vectors
         /// <returns></returns>
         public static T BlerpChoice<T>(T a, T b, T c, Vector3 weight)
         {
-            if (weight.X >= weight.Y && weight.X >= weight.Z)
+            if (weight.XPos >= weight.YPos && weight.XPos >= weight.ZPos)
             {
                 return a;
             }
-            else if (weight.Y >= weight.Z && weight.Y >= weight.X)
+            else if (weight.YPos >= weight.ZPos && weight.YPos >= weight.XPos)
             {
                 return b;
             }

@@ -1,4 +1,5 @@
-﻿using Hex.Geometry.Interfaces;
+﻿using Hex.Geometry.Blerpables;
+using Hex.Geometry.Interfaces;
 using Hex.Geometry.Vectors;
 using System;
 using System.Collections;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Hex.Geometry
 {
-    public readonly struct Hex<T>:I3dIndexable, IEquatable<Hex<T>> where T:IBlerpable
+    public readonly struct Hex<T>:I3dIndexable, IEquatable<Hex<T>> where T:Blerpable
     {
         public HexIndex3d Index { get; }
         public T Payload { get; }

@@ -1,23 +1,24 @@
-﻿using System;
+﻿using Hex.Geometry.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Hex.Geometry.Vectors
 {
-    public readonly struct Vector2
+    public readonly struct Vector2 : I2dPositionable
     {
         public Vector2(double x, double y)
         {
-            X = x;
-            Y = y;
+            XPos = x;
+            YPos = y;
         }
 
-        public double X { get; }
-        public double Y { get; }
+        public double XPos { get; }
+        public double YPos { get; }
 
         public override string ToString()
         {
-            return $"{X},{Y}";
+            return $"{XPos},{YPos}";
         }
     }
 }

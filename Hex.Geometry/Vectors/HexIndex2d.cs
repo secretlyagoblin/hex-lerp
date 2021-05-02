@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hex.Geometry.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 

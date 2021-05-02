@@ -4,7 +4,9 @@ using System.Text;
 
 namespace Hex.Geometry.Interfaces
 {
-    public interface IBlerpable
+    public interface I2dPositionable
     {
+        double XPos { get; }
+        double YPos { get; }
     }
 }

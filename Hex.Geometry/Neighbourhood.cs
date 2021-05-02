@@ -1,54 +1,55 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Hex.Geometry.Blerpables;
+using Hex.Geometry.Interfaces;
+using Hex.Geometry.Vectors;
 
-/*
-
-namespace RecursiveHex
+namespace Hex.Geometry
 {
 
-    public struct Neighbourhood
+    public readonly struct Neighbourhood
     {
-        public Hex Center;
-        public Hex N0;
-        public Hex N1;
-        public Hex N2;
-        public Hex N3;
-        public Hex N4;
-        public Hex N5;
+        public Hex<Blerpable> Center { get; }
+        public Hex<Blerpable> N0 { get; }
+        public Hex<Blerpable> N1 { get; }
+        public Hex<Blerpable> N2 { get; }
+        public Hex<Blerpable> N3 { get; }
+        public Hex<Blerpable> N4 { get; }
+        public Hex<Blerpable> N5 { get; }
 
-        public bool IsBorder;
+        public bool IsBorder { get; }
 
         #region Static Vertex Lists
 
         /// <summary>
         /// The neighbourhood around a hex - currently hardcoded, and shouldn't be changed
         /// </summary>
-        public static readonly Vector3Int[] Neighbours = new Vector3Int[]
+        public static readonly HexIndex3d[] Neighbours = new HexIndex3d[]
         {
-            new Vector3Int(+1,-1,0),
-            new Vector3Int(+1,0,-1),
-            new Vector3Int(0,+1,-1),
-            new Vector3Int(-1,+1,0),
-            new Vector3Int(-1,0,+1),
-            new Vector3Int(0,-1,+1),
+            new HexIndex3d(+1,-1,0),
+            new HexIndex3d(+1,0,-1),
+            new HexIndex3d(0,+1,-1),
+            new HexIndex3d(-1,+1,0),
+            new HexIndex3d(-1,0,+1),
+            new HexIndex3d(0,-1,+1),
         };
 
-        private static Dictionary<int, Vector3Int[]> _cachedRosettes = new Dictionary<int, Vector3Int[]>();
+        private static Dictionary<int, HexIndex3d[]> _cachedRosettes = new Dictionary<int, HexIndex3d[]>();
 
-        private static Vector3Int[] GenerateRosette(int radius)
+        private static HexIndex3d[] GenerateRosette(int radius)
         {
             if (_cachedRosettes.ContainsKey(radius))
                 return _cachedRosettes[radius];
 
-            var cells = new List<Vector3Int>();
+            var cells = new List<HexIndex3d>();
 
             for (int q = -radius; q <= radius; q++)
             {
-                int r1 = Mathf.Max(-radius, -q - radius);
-                int r2 = Mathf.Min(radius, -q + radius);
+                int r1 = System.Math.Max(-radius, -q - radius);
+                int r2 = System.Math.Min(radius, -q + radius);
                 for (int r = r1; r <= r2; r++)
                 {
-                    cells.Add(new Vector3Int(q, r, -q - r));
+                    cells.Add(new HexIndex3d(q, r, -q - r));
                 }
             }
 
@@ -76,60 +77,24 @@ namespace RecursiveHex
         /// Subdivides the grid by one level
         /// </summary>
         /// <returns></returns>
-        public Hex[] Subdivide(int scale)
+        public Hex<T>[] Subdivide(int scale)
         {
             if (this.IsBorder && Hex.IsInvalid(this.Center))                  
                     return new Hex[0];
 
             var nestedCenter = this.Center.Index.NestMultiply(scale);
 
-            var floatingNestedCenter = nestedCenter.Position2d+ this.Center.Index.Position2d.AddNoiseOffset(scale-1);
+            var floatingNestedCenter = nestedCenter.GetPosition2d()  + this.Center.Index.GetPosition2d().AddNoiseOffset(scale-1);
 
             var largeHexPoints = new Vector2[]
             {
-                 this.N0.Index.NestMultiply(scale).Position2d + this.N0.Index.Position2d.AddNoiseOffset(scale-1),
-                 this.N1.Index.NestMultiply(scale).Position2d + this.N1.Index.Position2d.AddNoiseOffset(scale-1),
-                 this.N2.Index.NestMultiply(scale).Position2d + this.N2.Index.Position2d.AddNoiseOffset(scale-1),
-                 this.N3.Index.NestMultiply(scale).Position2d + this.N3.Index.Position2d.AddNoiseOffset(scale-1),
-                 this.N4.Index.NestMultiply(scale).Position2d + this.N4.Index.Position2d.AddNoiseOffset(scale-1),
-                 this.N5.Index.NestMultiply(scale).Position2d + this.N5.Index.Position2d.AddNoiseOffset(scale-1)
+                 this.N0.Index.NestMultiply(scale).GetPosition2d() + this.N0.Index.GetPosition2d().AddNoiseOffset(scale-1),
+                 this.N1.Index.NestMultiply(scale).GetPosition2d() + this.N1.Index.GetPosition2d().AddNoiseOffset(scale-1),
+                 this.N2.Index.NestMultiply(scale).GetPosition2d() + this.N2.Index.GetPosition2d().AddNoiseOffset(scale-1),
+                 this.N3.Index.NestMultiply(scale).GetPosition2d() + this.N3.Index.GetPosition2d().AddNoiseOffset(scale-1),
+                 this.N4.Index.NestMultiply(scale).GetPosition2d() + this.N4.Index.GetPosition2d().AddNoiseOffset(scale-1),
+                 this.N5.Index.NestMultiply(scale).GetPosition2d() + this.N5.Index.GetPosition2d().AddNoiseOffset(scale-1)
             };
-
-            if(!this.IsBorder)
-            {
-
-                var a = 0;
-                var b = 1;
-
-                Debug.DrawLine(new Vector3(largeHexPoints[a].x, 0, largeHexPoints[a].y), new Vector3(largeHexPoints[b].x, 0, largeHexPoints[b].y), new Color(10, 0, 0, 0.1f), 100f);
-
-                a = 1;
-                b = 2;
-
-                Debug.DrawLine(new Vector3(largeHexPoints[a].x, 0, largeHexPoints[a].y), new Vector3(largeHexPoints[b].x, 0, largeHexPoints[b].y), new Color(10, 0, 0, 0.1f), 100f);
-
-                a = 2;
-                b = 3;
-
-                Debug.DrawLine(new Vector3(largeHexPoints[a].x, 0, largeHexPoints[a].y), new Vector3(largeHexPoints[b].x, 0, largeHexPoints[b].y), new Color(10, 0, 0, 0.1f), 100f);
-
-                a = 3;
-                b = 4;
-
-                Debug.DrawLine(new Vector3(largeHexPoints[a].x, 0, largeHexPoints[a].y), new Vector3(largeHexPoints[b].x, 0, largeHexPoints[b].y), new Color(10, 0, 0, 0.1f), 100f);
-
-                a = 4;
-                b = 5;
-
-                Debug.DrawLine(new Vector3(largeHexPoints[a].x, 0, largeHexPoints[a].y), new Vector3(largeHexPoints[b].x, 0, largeHexPoints[b].y),new Color(10,0,0,0.1f), 100f);
-
-
-                a = 5;
-                b = 0;
-
-                Debug.DrawLine(new Vector3(largeHexPoints[a].x, 0, largeHexPoints[a].y), new Vector3(largeHexPoints[b].x, 0, largeHexPoints[b].y), new Color(10, 0, 0, 0.1f), 100f);
-
-            }
 
             //var barycenters
             //
@@ -138,13 +103,10 @@ namespace RecursiveHex
             //    (largeHexPoints[i] + floatingNestedCenter + largeHexPoints[i+1])/3
             //}
 
-            HexIndex[] indexChildren;
+            HexIndex3d[] indexChildren;
 
             if (this.IsBorder)
             {
-
-
-
                 indexChildren = nestedCenter.GenerateRosetteLinear(scale);
             }
             else
@@ -164,7 +126,7 @@ namespace RecursiveHex
 
 
 
-            var children = new Hex[indexChildren.Length];
+            var children = new HexIndex3d[indexChildren.Length];
 
             for (int i = 0; i < indexChildren.Length; i++)
             {
@@ -277,5 +239,3 @@ namespace RecursiveHex
         }
     }
 }
-
-*/
