@@ -33,7 +33,7 @@ namespace Hex.Geometry.Tests
             var hex = new HexIndex2d(0,0).Get3dIndex();
             var rosette = hex
                 .GenerateRosetteCircular(5)
-                .Select(x => new Hex<Blerpable>(x,new Terrain((rng.NextDouble()*10)-5, rng.Next())))
+                .Select(x => new Hex<Blerpable>(x,new Terrain((rng.NextDouble()*3), rng.Next())))
                 .ToList();
 
             rosette.AddRange(hex.GenerateRing(5).Select(x => new Hex<Blerpable>(x, Blerpable.Default(rosette[0].Payload))));
