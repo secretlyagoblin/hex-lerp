@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hex.Geometry.Blerpables
 {
-    public class Terrain : Blerpable
+    public class Terrain : IBlerpable<Terrain>
     {
         public Terrain() { }
 
@@ -26,26 +26,21 @@ namespace Hex.Geometry.Blerpables
             return $"{SeaLevel},{Zone},{Edge}";
         }
 
-        protected override Blerpable Blerp(Blerpable b, Blerpable c, I3dPositionable weight)
+        public Terrain Blerp(Terrain b, Terrain c, I3dPositionable weight)
         {
             if (b is Terrain tb && c is Terrain tc)
             {
 
                 return new Terrain(
-                    Vectors.Math.Blerp(this.SeaLevel, tb.SeaLevel, tc.SeaLevel, weight),
-                    Vectors.Math.BlerpChoice(this.Zone, tb.Zone, tc.Zone, weight),
-                    Vectors.Math.Blerp(this.Edge, tb.Edge, tc.Edge, weight)
+                    Vectors.HexMath.Blerp(this.SeaLevel, tb.SeaLevel, tc.SeaLevel, weight),
+                    Vectors.HexMath.BlerpChoice(this.Zone, tb.Zone, tc.Zone, weight),
+                    Vectors.HexMath.Blerp(this.Edge, tb.Edge, tc.Edge, weight)
                     );
             }
             else
             {
                 throw new Exception("Misaligned blerp");
             }
-        }
-
-        protected override Blerpable GetDefault()
-        {
-            return new Terrain();
         }
     }
 }

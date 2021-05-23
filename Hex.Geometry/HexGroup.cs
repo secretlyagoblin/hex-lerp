@@ -1,4 +1,5 @@
 ﻿using Hex.Geometry.Blerpables;
+using Hex.Geometry.Interfaces;
 using Hex.Geometry.Vectors;
 using System;
 using System.Collections;
@@ -7,24 +8,27 @@ using System.Linq;
 
 namespace Hex.Geometry
 {
-    public class HexGroup
+
+    public class HexGroup<T> : IHexGroup<T> where T : IBlerpable<T>
     {
-        private Dictionary<HexIndex3d, Hex<Blerpable>> _hexes = new Dictionary<HexIndex3d, Hex<Blerpable>>();
+        private IHexSetQueryable<T> _hexes;
 
-        public List<Hex<Blerpable>> GetHexes() => _hexes.Select(x=>x.Value).ToList();
+        public IEnumerable<IHexBlerpable<T>> GetHexes() => _hexes;
 
-        public HexGroup(List<Hex<Blerpable>> blerps)
+        public HexGroup(IHexSetQueryable<T> blerps)
         {
-            blerps.ForEach(x => _hexes.Add(x.Index, x));
+            _hexes = blerps;
         }
 
         /// <summary>
         /// Creates a new hexgroup given a parent.
         /// </summary>
         /// <param name="parent"></param>
-        private HexGroup(HexGroup parent, int rosetteSize)
+        private HexGroup(HexGroup<T> parent, int rosetteSize)
         {
             var hoods = parent.GetNeighbourhoods();
+
+            //TODO, injection pattern....
 
             for (int i = 0; i < hoods.Length; i++)
             {         
@@ -39,42 +43,32 @@ namespace Hex.Geometry
             }
         }
 
-        private void AddHex(Hex<Blerpable> hex)
-        {
-            _hexes.Add(hex.Index, hex);
-        }
-
         /// <summary>
         /// Get an array of neighbourhoods that allow all cells to be subdivided
         /// </summary>
         /// <returns></returns>
-        private Neighbourhood[] GetNeighbourhoods()
+        private Neighbourhood<T>[] GetNeighbourhoods()
         {
-            var hood = new Neighbourhood[_hexes.Count];
+            var hood = new Neighbourhood<T>[_hexes.Count()];
 
             var count = 0;
 
             foreach (var hexDictEntry in _hexes)
             {
-                var hexes = new Hex<Blerpable>[6];
+                var hexes = new Hex<T>[6];
 
-                var neighbours = Neighbourhood.Neighbours;
+                var neighbours = Neighbourhood<T>.Neighbours;
 
                 for (int i = 0; i < 6; i++)
                 {
-                    var key = hexDictEntry.Key + neighbours[i];
-                    if (_hexes.ContainsKey(key))
-                    {
-                        hexes[i] = new Hex<Blerpable>(key,_hexes[key].Payload);
-                    }
-                    else
-                    {
-                        hexes[i] = new Hex<Blerpable>(key, Blerpable.Default(hexDictEntry.Value.Payload));
-                    }
+                    var key = hexDictEntry + neighbours[i];
+
+                    hexes[i] = new Hex<T>(key,_hexes[key].Payload);
+                    
                 }
 
-                hood[count] = new Neighbourhood(                
-                    new Hex<Blerpable>(hexDictEntry.Key,hexDictEntry.Value.Payload),
+                hood[count] = new Neighbourhood<T>(                
+                    new Hex<T>(hexDictEntry,hexDictEntry.Payload),
                     hexes[0],
                     hexes[1],
                     hexes[2],
@@ -92,16 +86,16 @@ namespace Hex.Geometry
         /// Subdivide this hexgroup.
         /// </summary>
         /// <returns></returns>
-        public HexGroup SubdivideThree()
+        public HexGroup<T> SubdivideThree()
         {
             //Debug.Log("Starting subdivide");
-            return new HexGroup(this,3);
+            return new HexGroup<T>(this,3);
         }
 
-        public HexGroup Subdivide(int amount)
+        public IHexGroup<T> Subdivide(int amount)
         {
             //Debug.Log("Starting subdivide");
-            return new HexGroup(this, amount);
+            return new HexGroup<T>(this, amount);
         }
 
         /// <summary>

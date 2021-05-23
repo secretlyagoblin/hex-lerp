@@ -7,15 +7,24 @@ using System.Collections.Generic;
 
 namespace Hex.Geometry
 {
-    public readonly struct Hex<T>:I3dIndexable, IEquatable<Hex<T>> where T:Blerpable
-    {
-        public HexIndex3d Index { get; }
+    public readonly struct Hex<T> : IHexBlerpable<T> where T : IBlerpable<T>
+    {    
+        private readonly I3dIndexable _index;
+        private readonly I2dPositionable _position;
+
+        public int XIndex => _index.XIndex;
+        public int YIndex => _index.YIndex;
+        public int ZIndex => _index.ZIndex;
+        public double XPos => _position.XPos;
+        public double YPos => _position.YPos;
+
         public T Payload { get; }
 
-        public Hex(HexIndex3d index, T payload) : this()
+        public Hex(I3dIndexable index, T payload) : this()
         {
             Payload = payload;
-            Index = index;
+            _index = index ?? throw new ArgumentNullException(nameof(index));
+            _position = index.GetHexPosition2d();
         }
 
         //public string DebugData;
@@ -28,9 +37,7 @@ namespace Hex.Geometry
 
         //private bool _notNull;
 
-        public int XIndex => Index.XIndex;
-        public int YIndex => Index.YIndex;
-        public int ZIndex => Index.ZIndex;
+
 
 
         /*
@@ -81,8 +88,29 @@ namespace Hex.Geometry
         */
 
         public override bool Equals(object obj) => obj is Hex<T> hex && Equals(hex);
-        public bool Equals(Hex<T> other) => Index.Equals(other.Index);
-        public override int GetHashCode() => -2134847229 + Index.GetHashCode();
+        public bool Equals(Hex<T> other) => _index.Equals(other._index);
+        public override int GetHashCode() => -2134847229 + _index.GetHashCode();
+
+        public I3dIndexable Subtract(I3dIndexable other) => _index.Subtract(other);
+        public I3dIndexable Add(I3dIndexable other) => _index.Add(other);
+        public I3dIndexable Multiply(I3dIndexable other) => _index.Multiply(other);
+        public I3dIndexable Multiply3d(int other) => _index.Multiply3d(other);
+        public I2dIndexable Subtract(I2dIndexable other) => _index.Subtract(other);
+        public I2dIndexable Add(I2dIndexable other) => _index.Add(other);
+        public I2dIndexable Multiply(I2dIndexable other) => _index.Multiply(other);
+        public I2dIndexable Multiply(int other) => _index.Multiply(other);
+        public bool Equals(I2dIndexable other) => _index.Equals(other);
+
+        public I2dPositionable Subtract(I2dPositionable other) => _position.Subtract(other);
+        public I2dPositionable Add(I2dPositionable other) => _position.Add(other);
+        public I2dPositionable Multiply(I2dPositionable other) => _position.Multiply(other);
+        public I2dPositionable Multiply(double other) => _position.Multiply(other);
+        public bool Equals(I2dPositionable other) => _position.Equals(other);
+
+        public T Blerp(T b, T c, I3dPositionable weight)
+        {
+            return this.Payload.Blerp(b, c, weight);
+        }
 
         public static bool operator ==(Hex<T> left, Hex<T> right) => left.Equals(right);
         public static bool operator !=(Hex<T> left, Hex<T> right) => !(left == right);

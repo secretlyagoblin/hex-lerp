@@ -5,23 +5,17 @@ using System.Collections.Generic;
 namespace Hex.Geometry.Vectors
 {
 
-    public static class Math
+    public static class HexMath
     {
         public static readonly double ScaleY = System.Math.Sqrt(3.0) * 0.5;
         public static readonly double HalfHex = 0.5f / System.Math.Cos(System.Math.PI / 180.0 * 30.0);
 
-        public static Vector3 ToPosition3d(this HexIndex3d pos)
+        public static I2dPositionable GetHexPosition2d(this I3dIndexable index3d)
         {
-            var twoD = pos.Get2dIndex().GetPosition2d();
-            return new Vector3(twoD.XPos, twoD.YPos, 0);            
+            return index3d.Get2dHexIndex().GetHexPosition2d();
         }
 
-        public static Vector2 GetPosition2d(this HexIndex3d index3d)
-        {
-            return index3d.Get2dIndex().GetPosition2d();
-        }
-
-        public static Vector2 GetPosition2d(this HexIndex2d index2d)
+        public static I2dPositionable GetHexPosition2d(this I2dIndexable index2d)
         {
             var isOdd = index2d.YIndex % 2 != 0;
 
@@ -30,19 +24,19 @@ namespace Hex.Geometry.Vectors
                 index2d.YIndex * ScaleY);
         }
 
-        public static HexIndex3d Get3dIndex(this HexIndex2d index2d)
+        public static I3dIndexable Get3dHexIndex(this I2dIndexable index2d)
         {
             var x = index2d.XIndex - (index2d.YIndex - (index2d.YIndex & 1)) / 2;
             var z = index2d.YIndex;
             var y = -x - z;
-            return new HexIndex3d(x, y, z);
+            return new Int3(x, y, z);
         }
 
-        public static HexIndex2d Get2dIndex(this HexIndex3d index3d)
+        public static I2dIndexable Get2dHexIndex(this I3dIndexable index3d)
         {
             var col = index3d.XIndex + (index3d.ZIndex - (index3d.ZIndex & 1)) / 2;
             var row = index3d.ZIndex;
-            return new HexIndex2d(col, row);
+            return new Int2(col, row);
         }
 
         /// <summary>
@@ -50,17 +44,17 @@ namespace Hex.Geometry.Vectors
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static HexIndex3d Rotate60(this HexIndex3d index)
+        public static I3dIndexable RotateHex60(this I3dIndexable index)
         {
-            return new HexIndex3d(-index.YIndex, -index.ZIndex, -index.XIndex);
+            return new Int3(-index.YIndex, -index.ZIndex, -index.XIndex);
         }
 
-        public static HexIndex3d NestMultiply(this HexIndex3d index, int amount)
+        public static I3dIndexable NestMultiply(this I3dIndexable index, int amount)
         {
-            return index * (amount + 1) + (index.Rotate60() * amount);
+            return index * (amount + 1) + (index.RotateHex60() * amount);
         }
 
-        public static HexIndex3d[] GenerateRosetteLinear(this HexIndex3d index, int radius)
+        public static I3dIndexable[] GenerateRosetteLinear(this I3dIndexable index, int radius)
         {
             //calculate rosette size without any GC :(
 
@@ -79,7 +73,7 @@ namespace Hex.Geometry.Vectors
 
             //Do the whole thing again this time making an array            
 
-            var output = new HexIndex3d[count];
+            var output = new I3dIndexable[count];
 
             count = 0;
 
@@ -89,7 +83,7 @@ namespace Hex.Geometry.Vectors
                 int r2 = System.Math.Min(radius, -q + radius);
                 for (int r = r1; r <= r2; r++)
                 {
-                    var vec = new HexIndex3d(q, r, -q - r) + index;
+                    var vec = new Int3(q, r, -q - r) + index;
                     output[count] = vec;
                     count++;
                 }
@@ -99,19 +93,19 @@ namespace Hex.Geometry.Vectors
             return output;
         }
 
-        private static readonly HexIndex3d[] _directions = new HexIndex3d[]
+        private static readonly I3dIndexable[] _directions = new I3dIndexable[]
         {
-            new HexIndex3d(1,-1,0),
-            new HexIndex3d(0,-1,1),
-            new HexIndex3d(-1,0,1),
-            new HexIndex3d(-1,1,0),
-            new HexIndex3d(0,1,-1),
-            new HexIndex3d(1,0,-1)
+            new Int3(1,-1,0),
+            new Int3(0,-1,1),
+            new Int3(-1,0,1),
+            new Int3(-1,1,0),
+            new Int3(0,1,-1),
+            new Int3(1,0,-1)
         };
 
-        public static HexIndex3d[] GenerateRosetteCircular(this HexIndex3d index, int radius)
+        public static I3dIndexable[] GenerateRosetteCircular(this I3dIndexable index, int radius)
         {
-            var results = new List<HexIndex3d>() { index };
+            var results = new List<I3dIndexable>() { index };
 
             for (int i = 1; i < radius; i++)
             {
@@ -121,15 +115,15 @@ namespace Hex.Geometry.Vectors
             return results.ToArray();
         }
 
-        public static HexIndex3d[] GenerateRing(this HexIndex3d index, int radius)
+        public static I3dIndexable[] GenerateRing(this I3dIndexable index, int radius)
         {
             var resultsCount = radius == 0 ? 1 : (radius) * 6;
 
-            var results = new HexIndex3d[resultsCount];
+            var results = new I3dIndexable[resultsCount];
 
             var currentPos = index + (_directions[4] * radius);
             //var lastPos = currentPos;
-            currentPos = currentPos + (_directions[0] * ((int)System.Math.Floor(radius * 0.5)));
+            currentPos += (_directions[0] * ((int)System.Math.Floor(radius * 0.5)));
 
             var ringStart = currentPos;
 
@@ -148,7 +142,7 @@ namespace Hex.Geometry.Vectors
                     //lastPos = currentPos;
                     count++;
 
-                    if (ringStart == currentPos)
+                    if (ringStart.Equals(currentPos))
                         return results;
                 }
 
@@ -161,7 +155,7 @@ namespace Hex.Geometry.Vectors
             return a * weight.XPos + b * weight.YPos + c * weight.ZPos;
         }
 
-        public static Vector2 Blerp(Vector2 a, Vector2 b, Vector2 c, I3dPositionable weight)
+        public static I2dPositionable Blerp(I2dPositionable a, I2dPositionable b, I2dPositionable c, I3dPositionable weight)
         {
             var x = a.XPos * weight.XPos + b.XPos * weight.YPos + c.XPos * weight.ZPos;
             var y = a.YPos * weight.XPos + b.YPos * weight.YPos + c.YPos * weight.ZPos;
@@ -169,7 +163,7 @@ namespace Hex.Geometry.Vectors
             return new Vector2(x, y);
         }
 
-        public static Vector3 Blerp(Vector3 a, Vector3 b, Vector3 c, I3dPositionable weight)
+        public static I3dPositionable Blerp(I3dPositionable a, I3dPositionable b, I3dPositionable c, I3dPositionable weight)
         {
             var x = a.XPos * weight.XPos + b.XPos * weight.YPos + c.XPos * weight.ZPos;
             var y = a.YPos * weight.XPos + b.YPos * weight.YPos + c.YPos * weight.ZPos;
@@ -201,6 +195,11 @@ namespace Hex.Geometry.Vectors
             {
                 return c;
             }
+        }
+
+        public static int DistanceTo(this I3dIndexable a, I3dIndexable b)
+        {
+            return (System.Math.Abs(a.XIndex - b.XIndex) + System.Math.Abs(a.YIndex - b.YIndex) + System.Math.Abs(a.ZIndex - b.ZIndex)) / 2;
         }
 
         public static double Dot2d(this I2dPositionable a, I2dPositionable b)

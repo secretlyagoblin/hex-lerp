@@ -7,39 +7,39 @@ using Hex.Geometry.Vectors;
 namespace Hex.Geometry
 {
 
-    public readonly struct Neighbourhood
+    public readonly struct Neighbourhood<T> where T : IBlerpable<T>
     {
-        public Hex<Blerpable> Center { get; }
-        public Hex<Blerpable> N0 { get; }
-        public Hex<Blerpable> N1 { get; }
-        public Hex<Blerpable> N2 { get; }
-        public Hex<Blerpable> N3 { get; }
-        public Hex<Blerpable> N4 { get; }
-        public Hex<Blerpable> N5 { get; }
+        public Hex<T> Center { get; }
+        public Hex<T> N0 { get; }
+        public Hex<T> N1 { get; }
+        public Hex<T> N2 { get; }
+        public Hex<T> N3 { get; }
+        public Hex<T> N4 { get; }
+        public Hex<T> N5 { get; }
 
         #region Static Vertex Lists
 
         /// <summary>
         /// The neighbourhood around a hex - currently hardcoded, and shouldn't be changed
         /// </summary>
-        public static readonly HexIndex3d[] Neighbours = new HexIndex3d[]
+        public static readonly Int3[] Neighbours = new Int3[]
         {
-            new HexIndex3d(+1,-1,0),
-            new HexIndex3d(+1,0,-1),
-            new HexIndex3d(0,+1,-1),
-            new HexIndex3d(-1,+1,0),
-            new HexIndex3d(-1,0,+1),
-            new HexIndex3d(0,-1,+1),
+            new Int3(+1,-1,0),
+            new Int3(+1,0,-1),
+            new Int3(0,+1,-1),
+            new Int3(-1,+1,0),
+            new Int3(-1,0,+1),
+            new Int3(0,-1,+1),
         };
 
-        private static Dictionary<int, HexIndex3d[]> _cachedRosettes = new Dictionary<int, HexIndex3d[]>();
+        private static Dictionary<int, Int3[]> _cachedRosettes = new Dictionary<int, Int3[]>();
 
-        private static HexIndex3d[] GenerateRosette(int radius)
+        private static Int3[] GenerateRosette(int radius)
         {
             if (_cachedRosettes.ContainsKey(radius))
                 return _cachedRosettes[radius];
 
-            var cells = new List<HexIndex3d>();
+            var cells = new List<Int3>();
 
             for (int q = -radius; q <= radius; q++)
             {
@@ -47,7 +47,7 @@ namespace Hex.Geometry
                 int r2 = System.Math.Min(radius, -q + radius);
                 for (int r = r1; r <= r2; r++)
                 {
-                    cells.Add(new HexIndex3d(q, r, -q - r));
+                    cells.Add(new Int3(q, r, -q - r));
                 }
             }
 
@@ -71,7 +71,7 @@ namespace Hex.Geometry
             5,0
         };
 
-        public Neighbourhood(Hex<Blerpable> center, Hex<Blerpable> n0, Hex<Blerpable> n1, Hex<Blerpable> n2, Hex<Blerpable> n3, Hex<Blerpable> n4, Hex<Blerpable> n5)
+        public Neighbourhood(Hex<T> center, Hex<T> n0, Hex<T> n1, Hex<T> n2, Hex<T> n3, Hex<T> n4, Hex<T> n5)
         {
             Center = center;
             N0 = n0;
@@ -86,34 +86,34 @@ namespace Hex.Geometry
         /// Subdivides the grid by one level
         /// </summary>
         /// <returns></returns>
-        public Hex<Blerpable>[] Subdivide(int scale)
+        public Hex<T>[] Subdivide(int scale)
         {
 
-            var nestedCenter = this.Center.Index.NestMultiply(scale);
+            var nestedCenter = this.Center.NestMultiply(scale);
 
-            var floatingNestedCenter = nestedCenter.GetPosition2d();// + this.Center.Index.GetPosition2d();//.AddNoiseOffset(scale-1);
+            var floatingNestedCenter = nestedCenter.GetHexPosition2d();// + this.Center.Index.GetPosition2d();//.AddNoiseOffset(scale-1);
 
-            var largeHexPoints = new Vector2[]
+            var largeHexPoints = new I2dPositionable[]
             {
-                 this.N0.Index.NestMultiply(scale).GetPosition2d(),// + this.N0.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N1.Index.NestMultiply(scale).GetPosition2d(),// + this.N1.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N2.Index.NestMultiply(scale).GetPosition2d(),// + this.N2.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N3.Index.NestMultiply(scale).GetPosition2d(),// + this.N3.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N4.Index.NestMultiply(scale).GetPosition2d(),// + this.N4.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
-                 this.N5.Index.NestMultiply(scale).GetPosition2d() //+ this.N5.Index.GetPosition2d()//.AddNoiseOffset(scale-1)
+                 this.N0.NestMultiply(scale).GetHexPosition2d(),// + this.N0.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N1.NestMultiply(scale).GetHexPosition2d(),// + this.N1.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N2.NestMultiply(scale).GetHexPosition2d(),// + this.N2.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N3.NestMultiply(scale).GetHexPosition2d(),// + this.N3.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N4.NestMultiply(scale).GetHexPosition2d(),// + this.N4.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
+                 this.N5.NestMultiply(scale).GetHexPosition2d() //+ this.N5.Index.GetPosition2d()//.AddNoiseOffset(scale-1)
             };
 
             var indexChildren = nestedCenter.GenerateRosetteCircular(scale+1);
 
-            var children = new List<Hex<Blerpable>>();
+            var children = new List<Hex<T>>();
 
             for (int i = 0; i < indexChildren.Length; i++)
             {
-                var weight = new Vector3(0,0,0);
+                I3dPositionable weight = new Vector3(0,0,0);
                 var index = 0;
                 var foundChild = false;
 
-                var actualPosition = indexChildren[i].GetPosition2d();
+                var actualPosition = indexChildren[i].GetHexPosition2d();
 
                 for (int u = 0; u < _triangleIndexPairs.Length; u += 2)
                 {
@@ -138,7 +138,7 @@ namespace Hex.Geometry
 
                     var payload = InterpolateHexPayload(weight, index);
 
-                    children.Add(new Hex<Blerpable>(
+                    children.Add(new Hex<T>(
                         indexChildren[i],
                         payload
                     ));
@@ -163,17 +163,17 @@ namespace Hex.Geometry
         /// <param name="weights"></param>
         /// <param name="triangleIndex"></param>
         /// <returns></returns>
-        private Blerpable InterpolateHexPayload(Vector3 weights, int triangleIndex)
+        private T InterpolateHexPayload(I3dPositionable weights, int triangleIndex)
         {
             switch (triangleIndex)
             {
                 default:
-                case 0: return Blerpable.Blerp(Center.Payload, N0.Payload, N1.Payload, weights);
-                case 1: return Blerpable.Blerp(Center.Payload, N1.Payload, N2.Payload, weights);
-                case 2: return Blerpable.Blerp(Center.Payload, N2.Payload, N3.Payload, weights);
-                case 3: return Blerpable.Blerp(Center.Payload, N3.Payload, N4.Payload, weights);
-                case 4: return Blerpable.Blerp(Center.Payload, N4.Payload, N5.Payload, weights);
-                case 5: return Blerpable.Blerp(Center.Payload, N5.Payload, N0.Payload, weights);
+                case 0: return Center.Payload.Blerp(N0.Payload, N1.Payload, weights);
+                case 1: return Center.Payload.Blerp(N1.Payload, N2.Payload, weights);
+                case 2: return Center.Payload.Blerp(N2.Payload, N3.Payload, weights);
+                case 3: return Center.Payload.Blerp(N3.Payload, N4.Payload, weights);
+                case 4: return Center.Payload.Blerp(N4.Payload, N5.Payload, weights);
+                case 5: return Center.Payload.Blerp(N5.Payload, N0.Payload, weights);
             }
         }
 
@@ -185,9 +185,9 @@ namespace Hex.Geometry
         /// <param name="vertC"></param>
         /// <param name="test"></param>
         /// <returns></returns>
-        private static Vector3 CalculateBarycentricWeight(Vector2 vertA, Vector2 vertB, Vector2 vertC, Vector2 test)
+        private static I3dPositionable CalculateBarycentricWeight(I2dPositionable vertA, I2dPositionable vertB, I2dPositionable vertC, I2dPositionable test)
         {
-            Vector2 v0 = vertB - vertA, v1 = vertC - vertA, v2 = test - vertA;
+            I2dPositionable v0 = vertB - vertA, v1 = vertC - vertA, v2 = test - vertA;
             var d00 = v0.Dot2d(v0);
             var d01 = v0.Dot2d(v1);
             var d11 = v1.Dot2d(v1);
@@ -196,7 +196,7 @@ namespace Hex.Geometry
             var denom = d00 * d11 - d01 * d01;
             var v = (d11 * d20 - d01 * d21) / denom;
             var w = (d00 * d21 - d01 * d20) / denom;
-            var u = 1.0f - v - w;
+            var u = 1.0 - v - w;
 
             return new Vector3(u, v, w);
         }
