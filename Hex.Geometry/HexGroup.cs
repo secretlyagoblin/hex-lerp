@@ -28,7 +28,7 @@ namespace Hex.Geometry
         {
             var hoods = parent.GetNeighbourhoods();
 
-            //TODO, injection pattern....
+            var hexes = new List<IHexBlerpable<T>>();
 
             for (int i = 0; i < hoods.Length; i++)
             {         
@@ -38,9 +38,11 @@ namespace Hex.Geometry
 
                 for (int u = 0; u < cells.Length; u++)
                 {
-                        this.AddHex(cells[u]);
+                    hexes.Add(cells[u]);
                 }
             }
+
+            _hexes = parent._hexes.Duplicate(hexes);
         }
 
         /// <summary>

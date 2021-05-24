@@ -29,6 +29,11 @@ namespace Hex.Geometry
             value : 
             new Hex<T>(index,_defaultValue);
 
+        public IHexSetQueryable<T> Duplicate(IEnumerable<IHexBlerpable<T>> set)
+        {
+            return new NullableHexSetQueryable<T>(set, _defaultValue);
+        }
+
         public IEnumerator<IHexBlerpable<T>> GetEnumerator() => _hexes.Select(x => x.Value).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _hexes.Select(x => x.Value).GetEnumerator();

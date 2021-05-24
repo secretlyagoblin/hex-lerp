@@ -57,12 +57,14 @@ namespace Hex.Geometry.Tests
 
             var rosette = hex
                 .GenerateRosetteCircular(5)
-                .Select(x => new Hex<Terrain>(x,new Terrain((rng.NextDouble()*3), rng.Next())))
+                .Select(x => new Hex<Terrain>(x,new Terrain((rng.NextDouble()*3), rng.Next())))                
                 .ToList();
 
             rosette.AddRange(hex.GenerateRing(5).Select(x => new Hex<Terrain>(x,new Terrain())));
 
-            var hexGroup = new HexGroup<Terrain>(rosette);
+            var rosetteSet = new NullableHexSetQueryable<Terrain>(rosette.Cast<IHexBlerpable<Terrain>>(), new Terrain());
+
+            var hexGroup = new HexGroup<Terrain>(rosetteSet);
             var subGroup = hexGroup.Subdivide(3);
 
             Print(subGroup.GetHexes(), nameof(MakeIsland));

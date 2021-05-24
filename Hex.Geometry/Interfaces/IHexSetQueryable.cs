@@ -9,5 +9,7 @@ namespace Hex.Geometry.Interfaces
     public interface IHexSetQueryable<T>: IEnumerable<IHexBlerpable<T>> where T : IBlerpable<T>
     {
         public IHexBlerpable<T> this[I3dIndexable index] {get;}
+
+        public IHexSetQueryable<T> Duplicate(IEnumerable<IHexBlerpable<T>> set);
     }
 }
