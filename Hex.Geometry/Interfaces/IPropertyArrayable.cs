@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Hex.Geometry.Interfaces
 {
-    public interface IHexBlerpable<T> : I3dIndexable, I2dPositionable where T: IBlerpable<T>
+    public interface IPropertyArrayable
     {
-        T Payload { get; }
+        public object[] ToPropertyValueArray();
+
+        public string[] ToKeys();
     }
 }

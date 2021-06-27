@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Hex.Geometry.Interfaces
 {
-    public interface IHexGroup<T> where T : IHexData<T>
+    public interface IHex<T> : I3dIndexable, I2dPositionable where T: IHexData<T>
     {
-        IHexGroup<T> Subdivide(int amount);
-        IEnumerable<IHex<T>> GetHexes();
+        T Payload { get; }
     }
 }

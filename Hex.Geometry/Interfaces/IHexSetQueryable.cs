@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Hex.Geometry.Interfaces
 {
-    public interface IHexSetQueryable<T>: IEnumerable<IHexBlerpable<T>> where T : IBlerpable<T>
+    public interface IHexSetQueryable<T>: IEnumerable<IHex<T>> where T : IHexData<T>
     {
-        public IHexBlerpable<T> this[I3dIndexable index] {get;}
+        public IHex<T> this[I3dIndexable index] {get;}
 
-        public IHexSetQueryable<T> Duplicate(IEnumerable<IHexBlerpable<T>> set);
+        public IHexSetQueryable<T> Duplicate(IEnumerable<IHex<T>> set);
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hex.Geometry.Vectors
 {
-    public readonly struct Int3 : I3dIndexable
+    public readonly struct Int3 : I2dIndexGettable, IEquatable<Int3>
     {
         public int XIndex { get; }
         public int YIndex { get; }
@@ -20,24 +20,29 @@ namespace Hex.Geometry.Vectors
 
         public override string ToString() => $"{XIndex},{YIndex},{ZIndex}";
 
-        public I3dIndexable Subtract(I3dIndexable other) => new Int3(XIndex - other.XIndex, YIndex - other.YIndex, ZIndex - other.ZIndex);
-        public I3dIndexable Add(I3dIndexable other) => new Int3(XIndex + other.XIndex, YIndex + other.YIndex, ZIndex + other.ZIndex);
-        public I3dIndexable Multiply(I3dIndexable other) => new Int3(XIndex * other.XIndex, YIndex * other.YIndex, ZIndex * other.ZIndex);
-        public I3dIndexable Multiply3d(int other) => new Int3(XIndex * other, YIndex * other, ZIndex * other);
+        public Int3 Subtract(Int3 other) => new(XIndex - other.XIndex, YIndex - other.YIndex, ZIndex - other.ZIndex);
+        public Int3 Add(Int3 other) => new(XIndex + other.XIndex, YIndex + other.YIndex, ZIndex + other.ZIndex);
+        public Int3 Multiply(Int3 other) => new(XIndex * other.XIndex, YIndex * other.YIndex, ZIndex * other.ZIndex);
+        public Int3 Multiply(int other) => new(XIndex * other, YIndex * other, ZIndex * other);
 
-        public I2dIndexable Subtract(I2dIndexable other) => new Int2(XIndex - other.XIndex, YIndex - other.YIndex);
-        public I2dIndexable Add(I2dIndexable other) => new Int2(XIndex + other.XIndex, YIndex + other.YIndex);
-        public I2dIndexable Multiply(I2dIndexable other) => new Int2(XIndex * other.XIndex, YIndex * other.YIndex);
-        public I2dIndexable Multiply(int other) => new Int2(XIndex * other, YIndex * other);
+        public override bool Equals(object obj) => obj is Int3 @int && Equals(@int);
 
-        public bool Equals(I2dIndexable other) => !(other is I3dIndexable threeDee && threeDee.ZIndex != ZIndex) && 
-            other is I2dIndexable && 
-            this.XIndex == other.XIndex && 
-            this.YIndex == other.YIndex;
+        public bool Equals(Int3 other)
+        {
+            return XIndex == other.XIndex &&
+                   YIndex == other.YIndex &&
+                   ZIndex == other.ZIndex;
+        }
 
-        public bool Equals(I3dIndexable other) => other is I3dIndexable && 
-            this.XIndex == other.XIndex &&
-            this.YIndex == other.YIndex && 
-            this.ZIndex == other.ZIndex;
+        public override int GetHashCode() => HashCode.Combine(XIndex, YIndex, ZIndex);
+
+        public static Int3 operator +(Int3 a, Int3 b) => a.Add(b);
+        public static Int3 operator -(Int3 a, Int3 b) => a.Subtract(b);
+        public static Int3 operator *(Int3 a, Int3 b) => a.Multiply(b);
+        public static Int3 operator *(Int3 a, int b) => a.Multiply(b);
+
+        public static bool operator ==(Int3 left, Int3 right) => left.Equals(right);
+
+        public static bool operator !=(Int3 left, Int3 right) => !(left == right);
     }
 }

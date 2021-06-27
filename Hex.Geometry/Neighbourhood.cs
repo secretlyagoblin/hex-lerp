@@ -7,7 +7,7 @@ using Hex.Geometry.Vectors;
 namespace Hex.Geometry
 {
 
-    public readonly struct Neighbourhood<T> where T : IBlerpable<T>
+    public readonly struct Neighbourhood<T> where T : IHexData<T>
     {
         public Hex<T> Center { get; }
         public Hex<T> N0 { get; }

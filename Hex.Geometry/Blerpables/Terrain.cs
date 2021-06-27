@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hex.Geometry.Blerpables
 {
-    public class Terrain : IBlerpable<Terrain>
+    public class Terrain : IHexData<Terrain>
     {
         public Terrain() { }
 
@@ -41,6 +41,26 @@ namespace Hex.Geometry.Blerpables
             {
                 throw new Exception("Misaligned blerp");
             }
+        }
+
+        public object[] ToPropertyValueArray()
+        {
+            return new object[]
+            {
+                this.SeaLevel,
+                this.Zone,
+                this.Edge
+            };
+        }
+
+        public string[] ToKeys()
+        {
+            return new string[]
+            {
+                nameof(SeaLevel),
+                nameof(Zone),
+                nameof(Edge)
+            };
         }
     }
 }

@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Hex.Geometry
 {
-    public class NullableHexSetQueryable<T> : IHexSetQueryable<T> where T : IBlerpable<T>
+    public class NullableHexSetQueryable<T> : IHexSetQueryable<T> where T : IHexData<T>
     {
         private readonly T _defaultValue;
 
-        private readonly Dictionary<I3dIndexable, IHexBlerpable<T>> _hexes = new();
+        private readonly Dictionary<I3dIndexable, IHex<T>> _hexes = new();
 
-        public NullableHexSetQueryable(IEnumerable<IHexBlerpable<T>> hexes, T defaultValue)
+        public NullableHexSetQueryable(IEnumerable<IHex<T>> hexes, T defaultValue)
         {
             _defaultValue = defaultValue;
 
@@ -24,17 +24,17 @@ namespace Hex.Geometry
             }
         }
 
-        public IHexBlerpable<T> this[I3dIndexable index] => 
+        public IHex<T> this[I3dIndexable index] => 
             _hexes.TryGetValue(index, out var value) ? 
             value : 
             new Hex<T>(index,_defaultValue);
 
-        public IHexSetQueryable<T> Duplicate(IEnumerable<IHexBlerpable<T>> set)
+        public IHexSetQueryable<T> Duplicate(IEnumerable<IHex<T>> set)
         {
             return new NullableHexSetQueryable<T>(set, _defaultValue);
         }
 
-        public IEnumerator<IHexBlerpable<T>> GetEnumerator() => _hexes.Select(x => x.Value).GetEnumerator();
+        public IEnumerator<IHex<T>> GetEnumerator() => _hexes.Select(x => x.Value).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _hexes.Select(x => x.Value).GetEnumerator();
     }

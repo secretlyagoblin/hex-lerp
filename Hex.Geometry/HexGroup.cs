@@ -9,11 +9,11 @@ using System.Linq;
 namespace Hex.Geometry
 {
 
-    public class HexGroup<T> : IHexGroup<T> where T : IBlerpable<T>
+    public class HexGroup<T> : IHexGroup<T> where T : IHexData<T>
     {
         private IHexSetQueryable<T> _hexes;
 
-        public IEnumerable<IHexBlerpable<T>> GetHexes() => _hexes;
+        public IEnumerable<IHex<T>> GetHexes() => _hexes;
 
         public HexGroup(IHexSetQueryable<T> blerps)
         {
@@ -28,7 +28,7 @@ namespace Hex.Geometry
         {
             var hoods = parent.GetNeighbourhoods();
 
-            var hexes = new List<IHexBlerpable<T>>();
+            var hexes = new List<IHex<T>>();
 
             for (int i = 0; i < hoods.Length; i++)
             {         

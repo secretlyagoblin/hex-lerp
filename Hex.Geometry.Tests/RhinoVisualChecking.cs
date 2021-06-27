@@ -62,7 +62,7 @@ namespace Hex.Geometry.Tests
 
             rosette.AddRange(hex.GenerateRing(5).Select(x => new Hex<Terrain>(x,new Terrain())));
 
-            var rosetteSet = new NullableHexSetQueryable<Terrain>(rosette.Cast<IHexBlerpable<Terrain>>(), new Terrain());
+            var rosetteSet = new NullableHexSetQueryable<Terrain>(rosette.Cast<IHex<Terrain>>(), new Terrain());
 
             var hexGroup = new HexGroup<Terrain>(rosetteSet);
             var subGroup = hexGroup.Subdivide(3);
@@ -93,7 +93,7 @@ namespace Hex.Geometry.Tests
             File.WriteAllText(path, sb.ToString());
         }
 
-        private void Print<T>(IEnumerable<IHexBlerpable<T>> hexes, string name) where T : IBlerpable<T>
+        private void Print<T>(IEnumerable<IHex<T>> hexes, string name) where T : IHexData<T>
         {
             var path = Path.Combine("..", "..", "..", "rhino", "exports", $"{name}.hex");
 
