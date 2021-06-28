@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hex.Geometry.Vectors
 {
-    public readonly struct Vector3 : I3dPositionable
+    public readonly struct Vector3 : I3dPositionGettable, IEquatable<Vector3>
     {
         public double XPos { get; }
         public double YPos { get; }
@@ -20,17 +20,29 @@ namespace Hex.Geometry.Vectors
 
         public override string ToString() => $"{XPos},{YPos},{ZPos}";
 
-        public I3dPositionable Subtract(I3dPositionable other) => new Vector3(XPos - other.XPos, YPos - other.YPos, ZPos - other.ZPos);
-        public I3dPositionable Add(I3dPositionable other) => new Vector3(XPos + other.XPos, YPos + other.YPos, ZPos + other.ZPos);
-        public I3dPositionable Multiply(I3dPositionable other) => new Vector3(XPos * other.XPos, YPos * other.YPos, ZPos * other.ZPos);
-        public I3dPositionable Multiply3d(double other) => new Vector3(XPos * other, YPos * other, ZPos * other);
+        public Vector3 Subtract(Vector3 other) => new(XPos - other.XPos, YPos - other.YPos, ZPos - other.ZPos);
+        public Vector3 Add(Vector3 other) => new(XPos + other.XPos, YPos + other.YPos, ZPos + other.ZPos);
+        public Vector3 Multiply(Vector3 other) => new(XPos * other.XPos, YPos * other.YPos, ZPos * other.ZPos);
+        public Vector3 Multiply(double other) => new(XPos * other, YPos * other, ZPos * other);
 
-        public I2dPositionable Subtract(I2dPositionable other) => new Vector2(XPos - other.XPos, YPos - other.YPos);
-        public I2dPositionable Add(I2dPositionable other) => new Vector2(XPos + other.XPos, YPos + other.YPos);
-        public I2dPositionable Multiply(I2dPositionable other) => new Vector2(XPos * other.XPos, YPos * other.YPos);
-        public I2dPositionable Multiply(double other) => new Vector2(XPos * other, YPos * other);
+        public override bool Equals(object obj) => obj is Vector3 vector && Equals(vector);
 
-        public bool Equals(I2dPositionable other) => other is I2dPositionable && this.XPos == other.XPos && this.YPos == other.YPos;
-        public bool Equals(I3dPositionable other) => other is I2dPositionable twoDee && this.Equals(twoDee) && this.ZPos == other.ZPos;
+        public bool Equals(Vector3 other)
+        {
+            return XPos.EqualsWithinTolerance(other.XPos) &&
+                   YPos.EqualsWithinTolerance(other.YPos) &&
+                   ZPos.EqualsWithinTolerance(other.ZPos);
+        }
+
+        public override int GetHashCode() => HashCode.Combine(XPos, YPos, ZPos);
+
+        public static Vector3 operator +(Vector3 a, Vector3 b) => a.Add(b);
+        public static Vector3 operator -(Vector3 a, Vector3 b) => a.Subtract(b);
+        public static Vector3 operator *(Vector3 a, Vector3 b) => a.Multiply(b);
+        public static Vector3 operator *(Vector3 a, double b) => a.Multiply(b);
+
+        public static bool operator ==(Vector3 left, Vector3 right) => left.Equals(right);
+
+        public static bool operator !=(Vector3 left, Vector3 right) => !(left == right);
     }
 }

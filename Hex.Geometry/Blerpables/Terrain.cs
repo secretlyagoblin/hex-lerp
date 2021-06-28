@@ -1,4 +1,5 @@
 ﻿using Hex.Geometry.Interfaces;
+using Hex.Geometry.Vectors;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,7 +27,7 @@ namespace Hex.Geometry.Blerpables
             return $"{SeaLevel},{Zone},{Edge}";
         }
 
-        public Terrain Blerp(Terrain b, Terrain c, I3dPositionable weight)
+        public Terrain Blerp(Terrain b, Terrain c, Vector3 weight)
         {
             if (b is Terrain tb && c is Terrain tc)
             {

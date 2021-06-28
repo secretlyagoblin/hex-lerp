@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hex.Geometry.Vectors;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Hex.Geometry.Interfaces
 {
     public interface IHexSetQueryable<T>: IEnumerable<IHex<T>> where T : IHexData<T>
     {
-        public IHex<T> this[I3dIndexable index] {get;}
+        public IHex<T> this[Int3 index] { get; }
 
         public IHexSetQueryable<T> Duplicate(IEnumerable<IHex<T>> set);
     }

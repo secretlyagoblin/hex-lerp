@@ -63,7 +63,7 @@ namespace Hex.Geometry
 
                 for (int i = 0; i < 6; i++)
                 {
-                    var key = hexDictEntry + neighbours[i];
+                    var key = hexDictEntry.Index3d + neighbours[i];
 
                     hexes[i] = new Hex<T>(key,_hexes[key].Payload);
                     

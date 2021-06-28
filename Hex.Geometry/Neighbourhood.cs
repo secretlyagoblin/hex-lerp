@@ -93,7 +93,7 @@ namespace Hex.Geometry
 
             var floatingNestedCenter = nestedCenter.GetHexPosition2d();// + this.Center.Index.GetPosition2d();//.AddNoiseOffset(scale-1);
 
-            var largeHexPoints = new I2dPositionable[]
+            var largeHexPoints = new Vector2[]
             {
                  this.N0.NestMultiply(scale).GetHexPosition2d(),// + this.N0.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
                  this.N1.NestMultiply(scale).GetHexPosition2d(),// + this.N1.Index.GetPosition2d(),//.AddNoiseOffset(scale-1),
@@ -109,7 +109,7 @@ namespace Hex.Geometry
 
             for (int i = 0; i < indexChildren.Length; i++)
             {
-                I3dPositionable weight = new Vector3(0,0,0);
+                var weight = new Vector3(0,0,0);
                 var index = 0;
                 var foundChild = false;
 
@@ -163,7 +163,7 @@ namespace Hex.Geometry
         /// <param name="weights"></param>
         /// <param name="triangleIndex"></param>
         /// <returns></returns>
-        private T InterpolateHexPayload(I3dPositionable weights, int triangleIndex)
+        private T InterpolateHexPayload(Vector3 weights, int triangleIndex)
         {
             switch (triangleIndex)
             {
@@ -185,9 +185,9 @@ namespace Hex.Geometry
         /// <param name="vertC"></param>
         /// <param name="test"></param>
         /// <returns></returns>
-        private static I3dPositionable CalculateBarycentricWeight(I2dPositionable vertA, I2dPositionable vertB, I2dPositionable vertC, I2dPositionable test)
+        private static Vector3 CalculateBarycentricWeight(Vector2 vertA, Vector2 vertB, Vector2 vertC, Vector2 test)
         {
-            I2dPositionable v0 = vertB - vertA, v1 = vertC - vertA, v2 = test - vertA;
+            Vector2 v0 = vertB - vertA, v1 = vertC - vertA, v2 = test - vertA;
             var d00 = v0.Dot2d(v0);
             var d01 = v0.Dot2d(v1);
             var d11 = v1.Dot2d(v1);

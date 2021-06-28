@@ -9,8 +9,8 @@ namespace Hex.Geometry
 {
     public readonly struct Hex<T> : IHex<T> where T : IHexData<T>
     {    
-        private readonly I3dIndexable _index;
-        private readonly I2dPositionable _position;
+        private readonly Int3 _index;
+        private readonly Vector2 _position;
 
         public int XIndex => _index.XIndex;
         public int YIndex => _index.YIndex;
@@ -20,15 +20,22 @@ namespace Hex.Geometry
 
         public T Payload { get; }
 
-        public Int3 Index3d => _index.Index3d;
+        public Int3 Index3d => _index;
 
-        public Vector2 Position2d => _position.Position2d;
+        public Vector2 Position2d => _position;
+
+        public Hex(Int3 index, T payload) : this()
+        {
+            Payload = payload;
+            _index = index;
+            _position = index.GetHexPosition2d();
+        }
 
         public Hex(I3dIndexable index, T payload) : this()
         {
             Payload = payload;
-            _index = index ?? throw new ArgumentNullException(nameof(index));
-            _position = index.GetHexPosition2d();
+            _index = index?.Index3d ?? throw new ArgumentNullException(nameof(index));
+            _position = _index.GetHexPosition2d();
         }
 
         //public string DebugData;
@@ -94,11 +101,8 @@ namespace Hex.Geometry
 
         public T Blerp(T b, T c, I3dPositionable weight)
         {
-            return this.Payload.Blerp(b, c, weight);
+            return this.Payload.Blerp(b, c, weight.Position3d);
         }
-
-        public static bool operator ==(Hex<T> left, Hex<T> right) => left.Equals(right);
-        public static bool operator !=(Hex<T> left, Hex<T> right) => !(left == right);
     }
 
 

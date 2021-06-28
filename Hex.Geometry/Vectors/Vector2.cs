@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Hex.Geometry.Vectors
 {
-    public readonly struct Vector2 : I2dPositionable
+    public readonly struct Vector2 : I2dPositionGettable, IEquatable<Vector2>
     {
         public double XPos { get; }
         public double YPos { get; }
@@ -18,11 +18,24 @@ namespace Hex.Geometry.Vectors
 
         public override string ToString() => $"{XPos},{YPos}";
 
-        public I2dPositionable Subtract(I2dPositionable other) => new Vector2(XPos - other.XPos, YPos - other.YPos);
-        public I2dPositionable Add(I2dPositionable other) => new Vector2(XPos + other.XPos, YPos + other.YPos);
-        public I2dPositionable Multiply(I2dPositionable other) => new Vector2(XPos * other.XPos, YPos * other.YPos);
-        public I2dPositionable Multiply(double other) => new Vector2(XPos * other, YPos * other);
+        public Vector2 Subtract(Vector2 other) => new(XPos - other.XPos, YPos - other.YPos);
+        public Vector2 Add(Vector2 other) => new(XPos + other.XPos, YPos + other.YPos);
+        public Vector2 Multiply(Vector2 other) => new(XPos * other.XPos, YPos * other.YPos);
+        public Vector2 Multiply(double other) => new(XPos * other, YPos * other);
 
-        public bool Equals(I2dPositionable other) => other is I2dPositionable && this.XPos == other.XPos && this.YPos == other.YPos;        
+        public bool Equals(Vector2 other) => this.XPos.EqualsWithinTolerance(other.XPos) && this.YPos.EqualsWithinTolerance(other.YPos);
+
+        public override int GetHashCode() => HashCode.Combine(XPos, YPos);
+
+        public static Vector2 operator +(Vector2 a, Vector2 b) => a.Add(b);
+        public static Vector2 operator -(Vector2 a, Vector2 b) => a.Subtract(b);
+        public static Vector2 operator *(Vector2 a, Vector2 b) => a.Multiply(b);
+        public static Vector2 operator *(Vector2 a, double b) => a.Multiply(b);
+
+        public static bool operator ==(Vector2 left, Vector2 right) => left.Equals(right);
+
+        public static bool operator !=(Vector2 left, Vector2 right) => !(left == right);
+
+        public override bool Equals(object obj) => obj is Vector2 vector && Equals(vector);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Hex.Geometry.Interfaces;
+using Hex.Geometry.Vectors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Hex.Geometry
     {
         private readonly T _defaultValue;
 
-        private readonly Dictionary<I3dIndexable, IHex<T>> _hexes = new();
+        private readonly Dictionary<Int3, IHex<T>> _hexes = new();
 
         public NullableHexSetQueryable(IEnumerable<IHex<T>> hexes, T defaultValue)
         {
@@ -20,11 +21,11 @@ namespace Hex.Geometry
 
             foreach (var hex in hexes)
             {
-                _hexes[hex] = hex;
+                _hexes[hex.Index3d] = hex;
             }
         }
 
-        public IHex<T> this[I3dIndexable index] => 
+        public IHex<T> this[Int3 index] => 
             _hexes.TryGetValue(index, out var value) ? 
             value : 
             new Hex<T>(index,_defaultValue);

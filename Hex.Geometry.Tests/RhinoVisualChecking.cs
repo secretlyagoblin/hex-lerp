@@ -23,8 +23,8 @@ namespace Hex.Geometry.Tests
             Assert.IsFalse(new Int3(0, 1, 1).Equals(new Int3(0, 1, 2)));
             Assert.IsTrue(new Int3(0, 1, 2).Equals(new Int3(0, 1, 2)));
 
-            I3dIndexable a = new Int3(0, 0, 1);
-            I3dIndexable b = new Int3(0, 0, 2);
+            var a = new Int3(0, 0, 1);
+            var b = new Int3(0, 0, 2);
 
             Assert.IsFalse(a.Equals(b));
 
@@ -33,9 +33,6 @@ namespace Hex.Geometry.Tests
 
             Assert.IsTrue(a.Equals(b));
 
-            I2dIndexable b2d = new Int2(2, 1);
-
-            Assert.IsTrue(a.Equals(b2d));
         }
 
         [Test]
@@ -72,7 +69,7 @@ namespace Hex.Geometry.Tests
             Assert.Pass();
         }
 
-        private void Print(IEnumerable<I3dIndexable> hexes, string name)
+        private void Print(IEnumerable<Int3> hexes, string name)
         {
             var path = Path.Combine("..", "..", "..", "rhino", "exports", $"{name}.hexindex");
 
@@ -107,7 +104,7 @@ namespace Hex.Geometry.Tests
             foreach (var hex in hexes)
             {
 
-                sb.AppendLine($"{hex.GetHexPosition2d()},{hex.Payload}");
+                sb.AppendLine($"{hex.Position2d},{hex.Payload}");
             }
 
             File.WriteAllText(path, sb.ToString());
